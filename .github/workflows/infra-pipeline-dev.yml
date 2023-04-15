@@ -1,12 +1,9 @@
-name: Deploy Dev Infra  
+name: Deploy istio Infra
 
 on:
   push:
     branches:
-      - main
-  pull_request:
-
-
+      - dev
 #The job or workflow run requires a permissions setting with id-token: write.
 #You won't be able to request the OIDC JWT ID token if the permissions setting for id-token is set to read or none.
 # permission can be added at job level or workflow level
@@ -18,7 +15,7 @@ jobs:
 
   deploy-dev-infra:
 
-    name: deploy infra
+    name: Deploy dev infra
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -30,7 +27,7 @@ jobs:
         with:
           repository: KeyToDevOps/istio-eks-terraform
           token: ${{ secrets.PAT }}
-          ref: dev
+          ref: main
 
       - name: Preflight configuration installs terragrunt and AWS cli creds
         uses: ./.github/actions
@@ -50,9 +47,9 @@ jobs:
       - name: Terragrunt Plan
         id: plan
         if: github.event_name == 'pull_request'
-        run: terragrunt run-all plan -no-color -input=false -lock=false
+        run: terragrunt run-all plan -no-color -input=false
         continue-on-error: true
-        working-directory: live/dev/
+        working-directory: live/dev
 
       - name: Update Pull Request
         uses: actions/github-script@v6
@@ -66,23 +63,29 @@ jobs:
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
             #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+
             <details><summary>Show Plan</summary>
+
             \`\`\`\n
             ${process.env.PLAN}
             \`\`\`
+
             </details>
+
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: output
             })
+
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
       - name: Terragrunt Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: echo "Y" | terragrunt run-all apply -input=false -lock=false
+        run: echo "Y" | terragrunt run-all apply -input=false
         working-directory: live/dev/
