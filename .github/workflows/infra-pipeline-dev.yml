@@ -3,7 +3,7 @@ name: Deploy Dev Infra
 on:
   push:
     branches:
-      - dev
+      - main
   pull_request:
 
 
@@ -28,7 +28,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          repository:
+          repository: KeyToDevOps/istio-eks-terraform
           token: ${{ secrets.PAT }}
           ref: dev
 
@@ -83,6 +83,6 @@ jobs:
         run: exit 1
 
       - name: Terragrunt Apply
-        if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: echo "Y" | terragrunt run-all apply -input=false -lock=false
         working-directory: live/dev/
