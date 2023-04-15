@@ -1,0 +1,143 @@
+name: Incoming feature plan
+
+on:
+  pull_request:
+
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  feature-dev-infra-plan:
+    name: Incoming feature plan
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - run: echo $GITHUB_HEAD_REF && export PR_SOURCE_BRANCH=$GITHUB_HEAD_REF
+
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          repository:
+          token: ${{ secrets.PAT }}
+          ref: ${{ env.PR_SOURCE_BRANCH }}
+      - name: env
+        run: env
+
+      - name: Preflight configuration installs terragrunt and AWS cli creds
+        uses: ./.github/actions
+        with:
+          role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
+
+      - name: Terraform init
+        id: init
+        run: terragrunt run-all init
+        working-directory: live/dev/
+
+      - name: Code Scanning
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          working-directory: live/dev
+
+
+      - name: Terragrunt Validate
+        id: validate
+        run: terragrunt run-all validate -no-color
+        working-directory: live/dev/
+
+      - name: Terragrunt Plan
+        id: plan
+        if: github.event_name == 'pull_request'
+        run: terragrunt run-all plan -no-color -input=false -lock=false
+        continue-on-error: true
+        working-directory: live/dev
+
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+      - name: testing eks code
+        run: go test -v -run TestTerraformEKS -timeout 30m
+        working-directory: test/eks_test
+
+      - name: testing vpc code
+        run: go test -v -run TestTerraformVpc -timeout 30m
+        working-directory: test/vpc_test
+
+      - name: testing ecr code
+        run: go test -v -run TestTerraformECR -timeout 30m
+        working-directory: test/ecr_test
+
+      - name: testing iam code
+        run: go test -v -run TestTerraformIAM -timeout 30m
+        working-directory: test/iam_test
+
+
+  feature-qa-infra-plan:
+    name: Incoming feature plan
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - run: export PR_SOURCE_BRANCH=GITHUB_HEAD_REF
+
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          repository:
+          token: ${{ secrets.PAT }}
+          ref: ${{ env.PR_SOURCE_BRANCH }}
+
+      - name: Preflight configuration installs terragrunt and AWS cli creds
+        uses: ./.github/actions
+        with:
+          role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
+
+      - name: Terraform init
+        id: init
+        run: terragrunt run-all init
+        working-directory: live/qa
+
+      - name: Code Scanning
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          working-directory: live/qa
+
+
+      - name: Terragrunt Validate
+        id: validate
+        run: terragrunt run-all validate -no-color
+        working-directory: live/qa
+
+      - name: Terragrunt Plan
+        id: plan
+        if: github.event_name == 'pull_request'
+        run: terragrunt run-all plan -no-color -input=false -lock=false
+        continue-on-error: true
+        working-directory: live/qa
+
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+      - name: testing eks code
+        run: go test -v -run TestTerraformEKS -timeout 30m
+        working-directory: test/eks_test
+
+      - name: testing vpc code
+        run: go test -v -run TestTerraformVpc -timeout 30m
+        working-directory: test/vpc_test
+
+      - name: testing ecr code
+        run: go test -v -run TestTerraformECR -timeout 30m
+        working-directory: test/ecr_test
+
+      - name: testing iam code
+        run: go test -v -run TestTerraformIAM -timeout 30m
+        working-directory: test/iam_test
+
+

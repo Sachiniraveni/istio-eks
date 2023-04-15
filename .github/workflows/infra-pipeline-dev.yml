@@ -1,0 +1,88 @@
+name: Deploy Dev Infra
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+
+
+#The job or workflow run requires a permissions setting with id-token: write.
+#You won't be able to request the OIDC JWT ID token if the permissions setting for id-token is set to read or none.
+# permission can be added at job level or workflow level
+permissions:
+  id-token: write
+  contents: write # This is required for actions/checkout
+
+jobs:
+
+  deploy-dev-infra:
+
+    name: deploy infra
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          repository:
+          token: ${{ secrets.PAT }}
+          ref: dev
+
+      - name: Preflight configuration installs terragrunt and AWS cli creds
+        uses: ./.github/actions
+        with:
+          role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
+
+      - name: Terraform init
+        id: init
+        run: terragrunt run-all init
+        working-directory: live/dev/
+
+      - name: Terragrunt Validate
+        id: validate
+        run: terragrunt run-all validate -no-color
+        working-directory: live/dev/
+
+      - name: Terragrunt Plan
+        id: plan
+        if: github.event_name == 'pull_request'
+        run: terragrunt run-all plan -no-color -input=false -lock=false
+        continue-on-error: true
+        working-directory: live/dev/
+
+      - name: Update Pull Request
+        uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.PAT }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            <details><summary>Show Plan</summary>
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+            </details>
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+      - name: Terragrunt Apply
+        if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+        run: echo "Y" | terragrunt run-all apply -input=false -lock=false
+        working-directory: live/dev/
