@@ -1,0 +1,65 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: istio-cluster
+  region: us-east-1
+  version: "1.25"
+
+vpc:
+  subnets:
+    public:
+      istiocluster-Pub-1a:
+        id: "subnet-0ee0ba2227ad60a45"
+      istiocluster-Pub-1b:
+        id: "subnet-0a25465888a479544"
+      istiocluster-Pub-1c:
+        id: "subnet-001823e7474a3c22f"
+    private:
+       istiocluster-Pvt-1a:
+         id: "subnet-065e7aed207e40aad"
+       istiocluster-Pvt-1b:
+         id: "subnet-056195a2b0ca90f1f"
+       istiocluster-Pvt-1c:
+         id: "subnet-03318f7f44fa99fa4"
+managedNodeGroups:
+  - name: istio-cluster-NG-1
+    ami: ami-00c008cd43492a617
+    amiFamily: AmazonLinux2
+    overrideBootstrapCommand: |
+      #!/bin/bash
+      /etc/eks/bootstrap.sh istio-cluster --container-runtime containerd
+    minSize: 1
+    maxSize: 1
+    desiredCapacity: 1
+    instanceTypes: ["t3a.large","m5a.large","t3.large","m5.large"]
+    spot: true
+    volumeSize: 30
+    volumeEncrypted: true
+    privateNetworking: true
+    subnets:
+      - istiocluster-Pvt-1a
+      - istiocluster-Pvt-1b
+      - istiocluster-Pvt-1c
+    labels: {role: Demo}
+    ssh:
+      publicKeyName: POC-Virginia
+    tags:
+      nodegroup-role: istiocluster
+      nodegroup-name: istio-cluster
+      Project: DevOps-Training
+    iam:
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+      withAddonPolicies:
+        autoScaler: true
+        externalDNS: true
+        certManager: true
+        ebs: true
+        efs: true
+        albIngress: true
+        cloudWatch: true

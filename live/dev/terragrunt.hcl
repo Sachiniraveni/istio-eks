@@ -7,7 +7,7 @@ remote_state {
     if_exists = "overwrite_terragrunt"
   }
   config = {
-    bucket = "istio-terraform-backend-state"
+    bucket = "istio-terraform-backend"
     key = "dev/${path_relative_to_include()}/terraform.tfstate"
     region         = "us-east-1"
     encrypt        = true

@@ -43,5 +43,4 @@ inputs = {
     "kubernetes.io/role/internal-elb" = "1"
     "kubernetes.io/cluster/istio-dev-cluster" = "owned"
   }
-
 }
