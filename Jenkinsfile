@@ -30,6 +30,7 @@ pipeline{
             steps{
                 script{
                     sh "sudo docker tag ${REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:${IMAGE_TAG}"
+                    sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${REPO_NAME}:${IMAGE_TAG}"
                 }
             }
         }
