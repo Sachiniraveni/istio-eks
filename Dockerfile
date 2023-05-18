@@ -1,7 +1,8 @@
-FROM centos
-RUN yum install httpd -y
-COPY index.html /var/www/html/
+FROM node:14.17.5
 
-CMD [“/usr/sbin/httpd”,” -D”,” FOREGROUND”]
-EXPOSE 80
-
+WORKDIR /app
+COPY package.json ./
+RUN npm install
+COPY . .
+CMD ["node","app.js"]
+EXPOSE 3005
