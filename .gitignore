@@ -1,6 +1,9 @@
 # Local .terraform directories
 **/.terraform/*
 
+istio-1.17.2
+aws-ebs-csi-driver
+
 # .tfstate files
 *.tfstate
 *.tfstate.*
