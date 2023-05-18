@@ -13,7 +13,7 @@ pipeline{
         stage("Logging into ECR"){
             steps{
                 script{
-               sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+               sh "aws ecr get-login-password --region ${AWS_REGION} | sudo docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
                }
             }
         }
@@ -29,7 +29,7 @@ pipeline{
         stage("pushing image to ECR"){
             steps{
                 script{
-                    sh "docker tag ${REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:${IMAGE_TAG}"
+                    sh "sudo docker tag ${REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:${IMAGE_TAG}"
                 }
             }
         }
