@@ -36,9 +36,9 @@ pipeline{
 
         stage("deploy to K8s"){
             steps{
-                kubernetesDeploy(
-                    configs: 'Deployment.yaml'
-                    )
+                script{
+                sh "sudo kubectl apply -f deploymennt.yaml"
+                }
             }
        }
     }
