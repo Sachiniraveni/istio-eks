@@ -34,11 +34,12 @@ pipeline{
             }
         }
 
-        stage("deploy to K8s")
+        stage("deploy to K8s"){
             steps{
                 kubernetesDeploy(
                     configs: 'Deployment.yaml'
                     )
             }
+       }
     }
 }
