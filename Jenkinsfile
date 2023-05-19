@@ -5,11 +5,10 @@ pipeline{
     AWS_REGION="us-east-1"
     REPO_NAME="istio-dev"
     IMAGE_TAG="${BUILD_ID}"
-    AWS_ACCOUNT_ID="096422254148"
+    AWS_ACCOUNT_ID="472132854555"
     REPOSITORY_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${REPO_NAME}"
     }
     stages{
-
         stage("Logging into ECR"){
             steps{
                 script{
