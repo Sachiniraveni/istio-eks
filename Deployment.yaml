@@ -15,7 +15,7 @@ spec:
         app: frontend
     spec:
       containers:
-      - name: Node-app
+      - name: node-app
         image: 472132854555.dkr.ecr.us-east-1.amazonaws.com/istio-dev:5
         ports:
         - containerPort: 80 
