@@ -5,7 +5,7 @@ metadata:
   labels:
     app: frontend
 spec:
-  replicas:2
+  replicas: 2
   selector:
     matchLabels:
       app: frontend
@@ -17,7 +17,8 @@ spec:
       containers:
       - name: Node-app
         image: 472132854555.dkr.ecr.us-east-1.amazonaws.com/istio-dev:5
-        ports: 3005
+        ports:
+        - containerPort: 80 
 
 ---
 
