@@ -7,6 +7,7 @@ pipeline{
     IMAGE_TAG="${BUILD_ID}"
     AWS_ACCOUNT_ID="472132854555"
     REPOSITORY_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${REPO_NAME}"
+    ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
     }
     stages{
         stage("Logging into ECR"){
@@ -37,7 +38,7 @@ pipeline{
         stage("deploy to K8s"){
             steps{
                 script{
-                sh "sudo kubectl apply -f Deployment.yaml"
+                sh "kubectl set image deployment.apps/node-app node-app=$ECR_REGISTRY/$REPOSITORY_URI:$IMAGE_TAG"
                 }
             }
        }

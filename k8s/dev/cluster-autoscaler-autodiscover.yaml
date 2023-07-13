@@ -142,9 +142,11 @@ spec:
         runAsNonRoot: true
         runAsUser: 65534
         fsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
       serviceAccountName: cluster-autoscaler
       containers:
-        - image: k8s.gcr.io/autoscaling/cluster-autoscaler:v1.21.0
+        - image: registry.k8s.io/autoscaling/cluster-autoscaler:v1.26.2
           name: cluster-autoscaler
           resources:
             limits:
@@ -160,12 +162,18 @@ spec:
             - --cloud-provider=aws
             - --skip-nodes-with-local-storage=false
             - --expander=least-waste
-            - --node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/istio-dev-cluster
+            - --node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/eksdemo1
           volumeMounts:
             - name: ssl-certs
-              mountPath: /etc/ssl/certs/ca-certificates.crt #/etc/ssl/certs/ca-bundle.crt for Amazon Linux Worker Node`s
+              mountPath: /etc/ssl/certs/ca-certificates.crt #/etc/ssl/certs/ca-bundle.crt for Amazon Linux Worker Nodes
               readOnly: true
           imagePullPolicy: "Always"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
       volumes:
         - name: ssl-certs
           hostPath:

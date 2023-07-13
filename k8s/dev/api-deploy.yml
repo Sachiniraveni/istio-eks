@@ -7,7 +7,7 @@ metadata:
     app: rvlt-api
 spec:
   replicas: 1
-  selector:c
+  selector:
     matchLabels:
       app: rvlt-api
   template:
@@ -42,30 +42,30 @@ spec:
       targetPort: 3000
 
 ---
-
-
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: rvlt-api
-  namespace: rvlt-api
-  annotations:
-    # ingress core settings
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
-    nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
-spec:
-  rules:
-    - host: api-dev.recoveryvault.click
-      http:
-        paths:
-        - path: /
-          pathType: Prefix
-          backend:
-            service:
-              name: rvlt-api
-              port:
-                number: 3000
+#
+#
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: rvlt-api
+#  namespace: rvlt-api
+#  annotations:
+#    # ingress core settings
+#    kubernetes.io/ingress.class: nginx
+#    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+#    nginx.ingress.kubernetes.io/rewrite-target: /
+#    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+#    nginx.ingress.kubernetes.io/enable-cors: "true"
+#    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+#spec:
+#  rules:
+#    - host: api-dev.recoveryvault.click
+#      http:
+#        paths:
+#        - path: /
+#          pathType: Prefix
+#          backend:
+#            service:
+#              name: rvlt-api
+#              port:
+#                number: 3000
