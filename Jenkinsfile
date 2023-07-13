@@ -7,7 +7,7 @@ pipeline{
     IMAGE_TAG="${BUILD_ID}"
     AWS_ACCOUNT_ID="472132854555"
     REPOSITORY_URI="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${REPO_NAME}"
-    ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
+    ECR_REGISTRY="${steps.login-ecr.outputs.registry}"
     }
     stages{
         stage("Logging into ECR"){
