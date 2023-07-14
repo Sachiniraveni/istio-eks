@@ -18,39 +18,39 @@ pipeline{
             }
         }
 
-        stage("building docker image"){
-            steps{
-                script{
-                 sh "sudo docker build -t ${REPO_NAME}:${IMAGE_TAG} ."
-                }
-            }
-        }
-
-        stage("pushing image to ECR"){
-            steps{
-                script{
-                    sh "sudo docker tag ${REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:${IMAGE_TAG}"
-                    sh "sudo docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${REPO_NAME}:${IMAGE_TAG}"
-                }
-            }
-        }
-
-    //     stage("deploy to K8s"){
+    //     stage("building docker image"){
     //         steps{
     //             script{
+    //              sh "sudo docker build -t ${REPO_NAME}:${IMAGE_TAG} ."
+    //             }
+    //         }
+    //     }
+
+    //     stage("pushing image to ECR"){
+    //         steps{
+    //             script{
+    //                 sh "sudo docker tag ${REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:${IMAGE_TAG}"
+    //                 sh "sudo docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${REPO_NAME}:${IMAGE_TAG}"
+    //             }
+    //         }
+    //     }
+
+    // //     stage("deploy to K8s"){
+    // //         steps{
+    // //             script{
+    // //             sh "kubectl set image deployment.apps/node-app node-app=$ECR_REGISTRY/$REPOSITORY_URI:$IMAGE_TAG"
+    // //             }
+    // //         }
+    // //    }
+    //     stage("deploy to k8s"){
+    //         steps{
+    //             withKubeConfig(clusterName: 'eksdemo1', credentialsId: 'eks', namespace: 'default', restrictKubeConfigAccess: false) 
+    //             {
     //             sh "kubectl set image deployment.apps/node-app node-app=$ECR_REGISTRY/$REPOSITORY_URI:$IMAGE_TAG"
     //             }
     //         }
-    //    }
-        stage("deploy to k8s"){
-            steps{
-                withKubeConfig(clusterName: 'eksdemo1', credentialsId: 'eks', namespace: 'default', restrictKubeConfigAccess: false) 
-                {
-                sh "kubectl set image deployment.apps/node-app node-app=$ECR_REGISTRY/$REPOSITORY_URI:$IMAGE_TAG"
-                }
-            }
 
-        }
+    //     }
    }
 }
 
