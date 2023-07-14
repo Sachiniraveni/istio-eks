@@ -42,15 +42,6 @@ pipeline{
                 }
             }
        }
-        // stage("deploy to k8s"){
-        //     steps{
-        //         withKubeConfig(clusterName: 'eksdemo1', credentialsId: 'eks', namespace: 'default', restrictKubeConfigAccess: false) 
-        //         {
-        //         sh "kubectl set image deployment.apps/node-app node-app=$ECR_REGISTRY/$REPOSITORY_URI:$IMAGE_TAG"
-        //         }
-        //     }
-
-        // }
    }
 }
 
