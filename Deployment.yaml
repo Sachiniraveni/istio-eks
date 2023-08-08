@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: node-app
-        image: nginx:latest
+        image: estat/loginpage-front
         ports:
         - containerPort: 80 
         resources:
@@ -41,36 +41,35 @@ kind: Service
 metadata:
   name: node-app
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: frontend
   ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 3005
+  - port: 80
+    targetPort: 8080
 ---
 
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: node-app
-  annotations:
-    # ingress core settings
-    kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/rewrite-target: /
-    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
-    nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
-spec:
-  rules:
-    - host: kube.mydentistry-prod.com
-      http:
-        paths:
-        - path: /
-          pathType: Prefix
-          backend:
-            service:
-              name: node-app
-              port:
-                number: 3005
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: node-app
+#   annotations:
+#     # ingress core settings
+#     kubernetes.io/ingress.class: nginx
+#     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+#     nginx.ingress.kubernetes.io/rewrite-target: /
+#     service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
+#     nginx.ingress.kubernetes.io/enable-cors: "true"
+#     nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+# spec:
+#   rules:
+#     - host: kube.mydentistry-prod.com
+#       http:
+#         paths:
+#         - path: /
+#           pathType: Prefix
+#           backend:
+#             service:
+#               name: node-app
+#               port:
+#                 number: 3005
